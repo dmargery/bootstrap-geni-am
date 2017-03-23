@@ -2,7 +2,7 @@
 class development {
   include openssl
   include local_ca
-  include geni-tools-delegate
+  include gcf_delegate
 
   # gcf requirements
   package {
@@ -13,7 +13,7 @@ class development {
   # configure gcf to be quickly usable from the vagrant account
   file { "/home/vagrant/.bash_aliases":
     ensure => present,
-    mode => 750, owner => 'vagrant', group => 'vagrant',
+    mode => '0750', owner => 'vagrant', group => 'vagrant',
     content => "
 if [ -d \"/opt/geni-tools/src\" ] ; then
     PATH=\"/opt/geni-tools/src:/opt/geni-tools/src/examples:\$PATH\"
@@ -31,10 +31,11 @@ alias addMemberToSliceAndSlivers='addMemberToSliceAndSlivers.py'\n"  }
 }
   
 
-stage { "init": before  => Stage["main"] }
+# Shell provisionning already updates the package list
+# stage { "init": before  => Stage["main"] }
 
-class {"apt": 
-  stage => init,
-}
+# class {"apt": 
+#   stage => init,
+# }
 
 include development

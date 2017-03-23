@@ -1,49 +1,49 @@
 class local_ca {
   
   file { "/opt/localCA":
-    mode => 755, owner => root, group => root,
+    mode => "0755", owner => root, group => root,
     ensure => directory,
   }
   
   file { "/opt/localCA/private":
     require => File["/opt/localCA"],
-    mode => 755, owner => root, group => root,
+    mode => '0755', owner => root, group => root,
     ensure => directory,
   }
 
   file { "/opt/localCA/certs":
     require => File["/opt/localCA"],
-    mode => 755, owner => root, group => root,
+    mode => '0755', owner => root, group => root,
     ensure => directory,
   }
   
   file { "/opt/localCA/newcerts":
     require => File["/opt/localCA"],
-    mode => 755, owner => root, group => root,
+    mode => '0755', owner => root, group => root,
     ensure => directory,
   }
   
   file { "/opt/localCA/conf":
     require => File["/opt/localCA"],
-    mode => 755, owner => root, group => root,
+    mode => '0755', owner => root, group => root,
     ensure => directory,
   }
   
   file { "/opt/localCA/export":
     require => File["/opt/localCA"],
-    mode => 755, owner => root, group => root,
+    mode => '0755', owner => root, group => root,
     ensure => directory,
   }
   
   file { "/opt/localCA/csr":
     require => File["/opt/localCA"],
-    mode => 755, owner => root, group => root,
+    mode => '0755', owner => root, group => root,
     ensure => directory,
   }
   
   file { "/opt/localCA/serial":
     require => Exec["Populate serial"],
-    mode => 644, owner => root, group => root,
+    mode => '0644', owner => root, group => root,
     ensure => file
   }
 
@@ -56,7 +56,7 @@ class local_ca {
   
   file { "/opt/localCA/index.txt":
     require => File["/opt/localCA"],
-    mode => 644, owner => root, group => root,
+    mode => '0644', owner => root, group => root,
     ensure => file
   }
 
@@ -90,7 +90,7 @@ class local_ca {
   file {"/home/vagrant/usercert.pem":
     owner => $am_user,
     group => $am_user,
-    mode => 0600,
+    mode => '0600',
     require => Exec["Sign user csr"]
   }
 }

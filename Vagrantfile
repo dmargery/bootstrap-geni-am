@@ -4,17 +4,20 @@
 # Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
 VAGRANTFILE_API_VERSION = "2"
 
+TESTBED="testbed"
+
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # All Vagrant configuration is done here. The most common configuration
   # options are documented and commented below. For a complete reference,
   # please see the online documentation at vagrantup.com.
 
   # Every Vagrant virtual environment requires a box to build off of.
-  config.vm.box = "testbed-am"
+  config.vm.box = "debian/contrib-jessie64"
+  #config.vm.box_download_insecure = "true"
+  config.vm.hostname = "#{TESTBED}-am"
 
   # The url from where the 'config.vm.box' box will be fetched if it
   # doesn't already exist on the user's system.
-  config.vm.box_url = "http://people.rennes.inria.fr/David.Margery/boxes/debian-wheezy-x64-puppet_2.7.21.box"
 
   # Create a forwarded port mapping which allows access to a specific port
   # within the machine from a port on the host machine. In the example below,
@@ -42,7 +45,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # argument is a set of non-required options.
   config.vm.synced_folder "../geni-tools", "/opt/geni-tools"
   config.vm.synced_folder "../geni-tools/src/gcf", "/usr/local/lib/python2.7/dist-packages" #lazy way to put geni-tools in python path
-  config.vm.synced_folder ".", "/opt/bootstrap-geni-am"
+  config.vm.synced_folder ".", "/opt/gcf-#{TESTBED}-delegate"
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
@@ -64,13 +67,14 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     vb.customize ["modifyvm", :id, "--memory", "512"]
   end
 
-  #The version of puppet installed needs a puppet group
-  # and I don't want to correct the box
-  config.vm.provision "shell", inline: "if grep -q puppet /etc/group ; then echo 'Puppet group OK' ; else addgroup puppet; fi"
-
-  #We will be using uuid generation in templates : this requires a package
-  #to be installed before puppet compiles the recipes
-  config.vm.provision "shell", inline: "apt-get install -y ruby-uuidtools"
+  config.vm.provision "shell", inline: <<-SHELL
+    #!/bin/bash -x
+    sed -i s/httpredir/deb/ /etc/apt/sources.list # faster mirror
+    cd /tmp && wget -q http://apt.puppetlabs.com/puppetlabs-release-pc1-jessie.deb && dpkg -i puppetlabs-release-pc1-jessie.deb
+    apt-get update
+    apt-get -y install --no-install-recommends puppet-agent # vm provisioning
+    /opt/puppetlabs/puppet/bin/gem install uuidtools
+  SHELL
 
   # Enable provisioning with Puppet stand alone.  Puppet manifests
   # are contained in a directory path relative to this Vagrantfile.
@@ -91,18 +95,17 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # # }
   #
   config.vm.provision :puppet do |puppet|
-    puppet.manifests_path = "puppet/manifests"
-    puppet.manifest_file  = "development.pp"
-    puppet.module_path = "puppet/modules"
-      puppet.facter = {
-        "am_user" => "vagrant",
-        "debug_user" => "joe",
-        "debug_user_pass" => "SomeDebugPassForJoe", 
-        "x509_base_subj" => "/C=FR/ST=Bretagne/L=Rennes/O=Inria/OU=Grid5000",
-        "local_ca_pass" => "SomePassForAM3",
-        "am_base_name"=> ENV["Authority_Name"] || "am3.grid5000.fr",
-        "am_staff_mail"=> ENV["Authority_Mail"] || "support-staff@grid5000.fr",
-      }
+    puppet.environment='testanddev'
+    puppet.environment_path="puppet"
+    puppet.facter = {
+      "am_user" => "vagrant",
+      "debug_user" => "joe",
+      "debug_user_pass" => "SomeDebugPassForJoe", 
+      "x509_base_subj" => "/C=FR/ST=Bretagne/L=Rennes/O=Inria/OU=Grid5000",
+      "local_ca_pass" => "SomePassForAM3",
+      "am_base_name"=> ENV["Authority_Name"] || "#{TESTBED}.net",
+      "am_staff_mail"=> ENV["Authority_Mail"] || "support-staff@#{TESTBED}.net",
+    }
     #puppet.options = "--verbose --debug"
   end
 
