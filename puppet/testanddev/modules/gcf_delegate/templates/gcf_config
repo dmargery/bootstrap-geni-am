@@ -66,8 +66,8 @@ name=bonfire
 host=<%= @ipaddress_eth1 %>
 port=5001
 # Cert/key locations
-keyfile=/etc/geni-tools/certs/am-key.pem
-certfile=/etc/geni-tools/certs/am-cert.pem
+keyfile=/etc/geni-tools/certs/am-key-self-signed.pem
+certfile=/etc/geni-tools/certs/am-cert-self-signed.pem
 delegate=testbed-delegate.MyTestbedDelegate
 
 [gcf-test]

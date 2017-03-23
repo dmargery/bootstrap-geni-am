@@ -46,6 +46,28 @@ class gcf_delegate {
     require => Exec["Sign am certificate"]
   }
 
+  exec { "Generate Aggregate manager self-signed certificate":
+    command => "/usr/bin/openssl req -x509 -newkey rsa:4096 -keyout /etc/geni-tools/certs/am-key-self-signed.pem -outform PEM -out /etc/geni-tools/certs/am-cert-self-signed.pem -nodes -batch -extensions usr_cert -subj \"${x509_base_subj}/CN=${fqdn}/emailAddress=${am_staff_mail}\"",
+    user => root, group => root,
+    require => File["/etc/geni-tools/certs", "/etc/ssl/openssl.cnf"],
+    creates => "/etc/geni-tools/certs/am-cert-self-signed.pem",
+    cwd => "/opt"
+  }
+
+  file {"/etc/geni-tools/certs/am-cert-self-signed.pem":
+    owner => $am_user,
+    group => $am_user,
+    mode => '0600',
+    require => Exec["Generate Aggregate manager self-signed certificate"]
+  }
+
+  file {"/etc/geni-tools/certs/am-key-self-signed.pem":
+    owner => $am_user,
+    group => $am_user,
+    mode => '0600',
+    require => Exec["Generate Aggregate manager self-signed certificate"]
+  }
+
   file { "/etc/geni-tools/certs/trusted_roots":
     ensure => directory,
     mode => '0750', owner => $am_user, group => $am_user,
