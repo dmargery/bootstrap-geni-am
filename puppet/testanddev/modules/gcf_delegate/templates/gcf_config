@@ -24,7 +24,7 @@ base_name=<%= @am_base_name %>
 # The directory that stores the trusted roots of your CH/AM 
 # and those you have federated with
 # This can be a relative or absolute path.
-rootcadir=/etc/geni-tools-delegate/certs/trusted_roots/
+rootcadir=/etc/geni-tools/certs/trusted_roots/
 
 
 
@@ -66,9 +66,9 @@ name=bonfire
 host=<%= @ipaddress_eth1 %>
 port=5001
 # Cert/key locations
-keyfile=/etc/geni-tools-delegate/certs/am-key.pem
-certfile=/etc/geni-tools-delegate/certs/am-cert.pem
-delegate=testbed.MyTestbedDelegate
+keyfile=/etc/geni-tools/certs/am-key.pem
+certfile=/etc/geni-tools/certs/am-cert.pem
+delegate=testbed-delegate.MyTestbedDelegate
 
 [gcf-test]
 # Used for testing that the CH and AM are properly running
